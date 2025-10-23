@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { HardDrives, CloudArrowUp, Graph, Coins } from '@phosphor-icons/react'
+import { HardDrives, CloudArrowUp, Graph, Coins, Eye } from '@phosphor-icons/react'
 import { Toaster } from '@/components/ui/sonner'
+import { Button } from '@/components/ui/button'
 import Dashboard from '@/components/Dashboard'
 import Upload from '@/components/Upload'
 import Network from '@/components/Network'
 import Provider from '@/components/Provider'
 import type { StorageFile, StorageStats, Transaction } from '@/lib/types'
+import { getMockDashboardData } from '@/lib/mockData'
 
 function App() {
   const [files = [], setFiles] = useKV<StorageFile[]>('storage-files', [])
@@ -30,6 +32,14 @@ function App() {
   })
   const [transactions = [], setTransactions] = useKV<Transaction[]>('transactions', [])
   const [activeTab, setActiveTab] = useState('dashboard')
+  const [useMockData, setUseMockData] = useState(false)
+  
+  // Use mock data when enabled and there's no real data
+  const shouldUseMockData = useMockData || (files.length === 0 && stats.pointsEarned === 0 && transactions.length === 0)
+  const mockData = shouldUseMockData ? getMockDashboardData() : null
+  const displayStats = mockData?.stats || stats
+  const displayFiles = mockData?.files || files
+  const displayTransactions = mockData?.transactions || transactions
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -51,13 +61,22 @@ function App() {
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-                <span className="text-sm text-muted-foreground">{stats.networkNodes} Nodes Online</span>
+                <span className="text-sm text-muted-foreground">{displayStats.networkNodes} Nodes Online</span>
               </div>
               <div className="flex items-center gap-2 bg-accent/10 border border-accent/20 rounded-lg px-4 py-2">
                 <Coins size={20} weight="bold" className="text-accent" />
-                <span className="font-bold text-lg">{stats.pointsEarned.toLocaleString()}</span>
+                <span className="font-bold text-lg">{displayStats.pointsEarned.toLocaleString()}</span>
                 <span className="text-xs text-muted-foreground">SNT</span>
               </div>
+              <Button
+                variant={shouldUseMockData ? "default" : "outline"}
+                size="sm"
+                onClick={() => setUseMockData(!useMockData)}
+                className="flex items-center gap-2"
+              >
+                <Eye size={16} />
+                <span className="hidden sm:inline">Mock Data</span>
+              </Button>
             </div>
           </div>
         </div>
@@ -85,30 +104,30 @@ function App() {
           </TabsList>
 
           <TabsContent value="dashboard" className="mt-0">
-            <Dashboard 
-              stats={stats} 
-              files={files} 
-              transactions={transactions}
+            <Dashboard
+              stats={displayStats}
+              files={displayFiles}
+              transactions={displayTransactions}
             />
           </TabsContent>
 
           <TabsContent value="upload" className="mt-0">
-            <Upload 
-              files={files}
+            <Upload
+              files={displayFiles}
               setFiles={setFiles}
-              stats={stats}
+              stats={displayStats}
               setStats={setStats}
               setTransactions={setTransactions}
             />
           </TabsContent>
 
           <TabsContent value="network" className="mt-0">
-            <Network stats={stats} files={files} />
+            <Network stats={displayStats} files={displayFiles} />
           </TabsContent>
 
           <TabsContent value="provider" className="mt-0">
-            <Provider 
-              stats={stats}
+            <Provider
+              stats={displayStats}
               setStats={setStats}
               setTransactions={setTransactions}
             />
