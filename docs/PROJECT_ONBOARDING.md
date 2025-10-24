@@ -133,7 +133,6 @@ spark-template/
 │   │   ├── Upload.tsx            # File upload interface
 │   │   ├── Network.tsx           # Network visualization
 │   │   ├── Provider.tsx          # Storage provider management
-│   │   ├── Provider.tsx          # Context providers (theme, queries)
 │   │   └── ErrorFallback.tsx     # Error boundary fallback
 │   ├── hooks/
 │   │   └── use-mobile.ts        # Mobile detection hook
