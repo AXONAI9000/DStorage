@@ -35,7 +35,12 @@ function App() {
   const [useMockData, setUseMockData] = useState(false)
   
   // Use mock data when enabled and there's no real data
-  const shouldUseMockData = useMockData || (files.length === 0 && stats.pointsEarned === 0 && transactions.length === 0)
+  const shouldUseMockData = useMockData || (
+    files.length === 0 &&
+    stats.pointsEarned === 0 &&
+    stats.filesStored === 0 &&
+    transactions.length === 0
+  )
   const mockData = shouldUseMockData ? getMockDashboardData() : null
   const displayStats = mockData?.stats || stats
   const displayFiles = mockData?.files || files
